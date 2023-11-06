@@ -23,11 +23,12 @@ function generateStoryMarkup(story) {
   // console.debug("generateStoryMarkup", story);
 
   const hostName = story.getHostName();
-
+  const isFavorite = currentUser ? currentUser.isFavorite(story) : false;
+  const starClass = isFavorite ? "star-fav" : "star";
 
   return $(`
       <li id="${story.storyId}">
-        <span class="star">&#9734;</span>
+        <span class="${starClass}">&#9734;</span>
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
         </a>
@@ -36,7 +37,7 @@ function generateStoryMarkup(story) {
         <small class="story-user">posted by ${story.username}</small>
       </li>
     `);
-    }
+}
 
 
 /** Gets list of stories from server, generates their HTML, and puts on page. */
