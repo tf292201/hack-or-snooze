@@ -25,10 +25,11 @@ function generateStoryMarkup(story) {
   const hostName = story.getHostName();
   const isFavorite = currentUser ? currentUser.isFavorite(story) : false;
   const starClass = isFavorite ? "star-fav" : "star";
+  const starContent = isFavorite ? "&#9733;" : "&#9734;";
 
   return $(`
       <li id="${story.storyId}">
-        <span class="${starClass}">&#9734;</span>
+        <span class="${starClass}">${starContent}</span>
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
         </a>
@@ -51,6 +52,7 @@ function putStoriesOnPage() {
   for (let story of storyList.stories) {
     const $story = generateStoryMarkup(story);
     $allStoriesList.append($story);
+    $favoritedStoriesList.hide();
   }
 
   $allStoriesList.show();
@@ -87,7 +89,7 @@ $submitForm.hide();
   $favoritedStoriesList.empty();
 
   if (currentUser.favorites.length === 0) {
-    $body.append("<h5>No favorites added!</h5>");
+    $favoritedStoriesList.append("<h5>No favorites added!</h5>");
   } else {
     // loop through all of users favorites and generate HTML for them
     for (let story of currentUser.favorites) {
@@ -111,18 +113,16 @@ async function addFavoriteStory(evt) {
   const story = storyList.stories.find(s => s.storyId === storyId);
 
   // check if the story is already favorited
-  if (!$tgt.hasClass("star")) {
+  if ($tgt.closest("span").hasClass("star")) {
     // add the story to the user's favorites and change the star
     await currentUser.addFavorite(story);
-    $tgt.toggleClass("star-fav");
-    $tgt.html("&#9734;");
-  } else {
-    // remove the story from the user's favorites and change the star
-    await currentUser.removeFavorite(story);
-    $tgt.toggleClass("star");
+    $tgt.closest("span").removeClass("star").addClass("star-fav");
     $tgt.html("&#9733;");
+  } else if ($tgt.closest("span").hasClass("star-fav")) {
+    await currentUser.removeFavorite(story);
+    $tgt.closest("span").removeClass("star-fav").addClass("star");
+    $tgt.html("&#9734;");
   }
 }
-
 
 $body.on("click", "span", addFavoriteStory);  
