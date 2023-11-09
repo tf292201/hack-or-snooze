@@ -50,3 +50,10 @@ function navFavorites(evt) {
   putFavoritesListOnPage();
 }
 $favoritedStories.on("click", navFavorites);
+
+function navMyStories(evt) {
+  console.debug("navMyStories", evt);
+  hidePageComponents();
+  putMyStoriesListOnPage();
+}
+$myStories.on("click", navMyStories);

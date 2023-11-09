@@ -83,7 +83,29 @@ class StoryList {
 
     return story;
   }
+
+  async removeStory(user, storyId) {
+    const token = user.loginToken;
+    await axios({
+      url: `${BASE_URL}/stories/${storyId}`,
+      method: "DELETE",
+      data: { token: user.loginToken }
+    });
+
+    // filter out the story whose ID we are removing
+    this.stories = this.stories.filter(story => story.storyId !== storyId);
+
+    // do the same thing for the user's list of stories & their favorites
+    user.ownStories = user.ownStories.filter(s => s.storyId !== storyId);
+    user.favorites = user.favorites.filter(s => s.storyId !== storyId);
+    }
+
+  
 }
+
+
+
+
 
 /******************************************************************************
  * User: a user in the system (only used to represent the current user)
@@ -225,4 +247,9 @@ class User {
   isFavorite(story) {
     return this.favorites.some(s => (s.storyId === story.storyId));
   }
+
+  isOwnStory(story) {
+    return this.ownStories.some(s => (s.storyId === story.storyId));
+  }
+
 }

@@ -23,13 +23,15 @@ function generateStoryMarkup(story) {
   // console.debug("generateStoryMarkup", story);
 
   const hostName = story.getHostName();
+  const isOwnStory = currentUser ? currentUser.isOwnStory(story) : false;
+  const trashCanIcon = isOwnStory ? `<span id="myStory" >&#128465;</span>` : "";
   const isFavorite = currentUser ? currentUser.isFavorite(story) : false;
   const starClass = isFavorite ? "star-fav" : "star";
   const starContent = isFavorite ? "&#9733;" : "&#9734;";
 
   return $(`
-      <li id="${story.storyId}">
-        <span class="${starClass}">${starContent}</span>
+      <li id="${story.storyId}">${trashCanIcon}
+        <span id="fav" class="${starClass}">${starContent}</span>
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
         </a>
@@ -38,6 +40,8 @@ function generateStoryMarkup(story) {
         <small class="story-user">posted by ${story.username}</small>
       </li>
     `);
+
+  
 }
 
 
@@ -87,7 +91,7 @@ function putFavoritesListOnPage() {
 $submitForm.hide();
   $body.find("h5").remove();
   $favoritedStoriesList.empty();
-
+  $myStoriesList.empty()
   if (currentUser.favorites.length === 0) {
     $favoritedStoriesList.append("<h5>No favorites added!</h5>");
   } else {
@@ -125,4 +129,40 @@ async function addFavoriteStory(evt) {
   }
 }
 
-$body.on("click", "span", addFavoriteStory);  
+ 
+$body.on("click", "#fav", addFavoriteStory);
+
+function putMyStoriesListOnPage() {
+  console.debug("putMyStoriesListOnPage");
+  $submitForm.hide();
+  $body.find("h5").remove();
+  $myStoriesList.empty();
+  $favoritedStoriesList.hide() 
+  if (currentUser.ownStories.length === 0) {
+    $myStoriesList.append("<h5>No stories added by user yet!</h5>");
+  } else {
+    // loop through all of users favorites and generate HTML for them
+    for (let story of currentUser.ownStories) {
+      const $story = generateStoryMarkup(story);
+      $myStoriesList.append($story);
+
+  }}
+  $myStoriesList.show();
+
+}
+async function deleteStory(evt) {
+  console.debug("deleteStory");
+
+  const $closestLi = $(evt.target).closest("li");
+  const storyId = $closestLi.attr("id");
+
+  await storyList.removeStory(currentUser, storyId);
+
+  await putMyStoriesListOnPage() 
+}
+
+
+
+
+$body.on("click", "#myStory", deleteStory);
+
