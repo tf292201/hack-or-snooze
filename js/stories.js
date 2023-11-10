@@ -27,7 +27,10 @@ function generateStoryMarkup(story) {
   const trashCanIcon = isOwnStory ? `<span id="myStory" >&#128465;</span>` : "";
   const isFavorite = currentUser ? currentUser.isFavorite(story) : false;
   const starClass = isFavorite ? "star-fav" : "star";
-  const starContent = isFavorite ? "&#9733;" : "&#9734;";
+
+ 
+  const starContent = currentUser ? (isFavorite ? "&#9733;" : "&#9734;") : "";
+  
 
   return $(`
       <li id="${story.storyId}">${trashCanIcon}
@@ -38,7 +41,7 @@ function generateStoryMarkup(story) {
         <small class="story-hostname">(${hostName})</small>
         <small class="story-author">by ${story.author}</small>
         <small class="story-user">posted by ${story.username}</small>
-      </li>
+      </li><hr>
     `);
 
   
@@ -51,7 +54,7 @@ function putStoriesOnPage() {
   console.debug("putStoriesOnPage");
 
   $allStoriesList.empty();
-
+  $submitForm.hide();
   // loop through all of our stories and generate HTML for them
   for (let story of storyList.stories) {
     const $story = generateStoryMarkup(story);
